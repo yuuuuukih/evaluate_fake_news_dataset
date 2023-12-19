@@ -1,3 +1,4 @@
+from typing import Any, Dict
 import torch
 from torch import nn
 import pytorch_lightning as pl
@@ -30,6 +31,8 @@ class BertBinaryClassifier(pl.LightningModule):
         self.model.classifier.apply(self.model._init_weights)
         # sigmoid
         self.sigmoid = nn.Sigmoid()
+
+        self.model_dir_path = save_transformer_model_path
 
     def forward(self, input_ids, attention_mask, labels=None):
         # Get the classifier's output
@@ -64,3 +67,8 @@ class BertBinaryClassifier(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
+
+    def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
+        if self.model_dir_path is not None:
+            self.model.save_pretrained(self.model_dir_path)
+        return super().on_save_checkpoint(checkpoint)
