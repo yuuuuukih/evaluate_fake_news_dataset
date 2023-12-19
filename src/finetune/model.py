@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import BertConfig
 
-class BertForSequenceClassificationModel(pl.LightningModule):
+class BertBinaryClassifier(pl.LightningModule):
     def __init__(self, model_name="bert-base-uncased", lr=1e-3, dropout_rate=0.1, add_special_token=True, save_transformer_model_path=None):
         super().__init__()
         # learning rate
