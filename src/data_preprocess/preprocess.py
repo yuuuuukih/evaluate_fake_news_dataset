@@ -41,7 +41,7 @@ class Preprocessor:
                 for doc in timeline['timeline']:
                     new_dataset['data'].append({
                         'src': self._template_of_src(doc, content=True),
-                        'tgt': int(doc['is_fake']) #fake -> 1, real -> 0
+                        'tgt': str(int(doc['is_fake'])) #fake -> 1, real -> 0
                     })
 
         elif self.mode == 'timeline_aware':
@@ -49,7 +49,7 @@ class Preprocessor:
                 for i in range(len(timeline['timeline'])):
                     # Determine if the i-th document of the timeline is fake or real.
                     src = ''
-                    tgt = int(timeline['timeline'][i]['is_fake'])
+                    tgt = str(int(timeline['timeline'][i]['is_fake'])) #fake -> 1, real -> 0
                     for j, doc in enumerate(timeline['timeline']):
                         if i == j:
                             src += f"{self.target_token} {self._template_of_src(doc, content=True)} {self.target_token} "
