@@ -41,7 +41,7 @@ class FakeNewsDataModule(pl.LightningDataModule):
 
         input_ids = tokenized_src_texts['input_ids']
         attention_mask = tokenized_src_texts['attention_mask']
-        labels = tokenized_tgt_texts['input_ids']
+        labels = tokenized_tgt_texts['input_ids'].squeeze()
 
         return {
             'input_ids': input_ids,
