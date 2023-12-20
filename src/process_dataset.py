@@ -7,7 +7,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--mode', type=str, default='base', choices=['base', 'timeline_aware'])
     parser.add_argument('--root_dir', default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
-    parser.add_argument('--sub_dir', default='')
+    parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
     args = parser.parse_args()
 
     for what in ['train', 'val', 'test']:
