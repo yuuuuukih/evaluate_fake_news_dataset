@@ -6,7 +6,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import BertConfig
 
 class BertBinaryClassifier(pl.LightningModule):
-    def __init__(self, model_name="bert-base-uncased", lr=1e-3, dropout_rate=0.1, add_special_token=True, save_transformer_model_path=None):
+    def __init__(self, model_name="bert-base-uncased", lr=1e-3, dropout_rate=0.1, add_target_token=True, save_transformer_model_path=None):
         super().__init__()
         # learning rate
         self.lr = lr
@@ -22,7 +22,7 @@ class BertBinaryClassifier(pl.LightningModule):
         # instantiate tokenizer
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
         # add special tokens
-        if add_special_token:
+        if add_target_token:
             self.tokenizer.add_tokens(['<target>'])
             self.model.resize_token_embeddings(len(self.tokenizer))
 
