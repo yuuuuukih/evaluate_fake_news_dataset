@@ -1,4 +1,5 @@
 import os
+import torch
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from transformers import default_data_collator
@@ -36,12 +37,13 @@ class FakeNewsDataModule(pl.LightningDataModule):
         src_texts = example['src']
         tgt_texts = example['tgt']
         # tokenize src text and tgt text.
-        tokenized_src_texts = self.tokenizer(src_texts, padding='max_length', truncation=True, max_length=self.max_length, return_tensors='pt')
-        tokenized_tgt_texts = self.tokenizer(tgt_texts, padding='max_length', truncation=True, max_length=self.max_length, return_tensors='pt')
+        tokenized_src_texts = self.tokenizer(src_texts, padding='max_length', truncation=True, max_length=self.max_length, return_tensors='pt', add_special_tokens=True)
+        # tokenized_tgt_texts = self.tokenizer(tgt_texts, padding='max_length', truncation=True, max_length=self.max_length, return_tensors='pt')
 
         input_ids = tokenized_src_texts['input_ids']
         attention_mask = tokenized_src_texts['attention_mask']
-        labels = tokenized_tgt_texts['input_ids'].squeeze()
+        labels = torch.tensor(tgt_texts, dtype=torch.long)
+        # labels = tokenized_tgt_texts['input_ids']
 
         return {
             'input_ids': input_ids,
