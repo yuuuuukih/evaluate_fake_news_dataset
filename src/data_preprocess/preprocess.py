@@ -8,8 +8,15 @@ from typing import Literal
 from type.fake_news_dataset import FakeNewsDataset, DocForDataset
 from type.processed_dataset import ProcessedDataset
 
+'''
+mode
+- base: no timeline. 1 (is_fake) or 0 for one document.
+- pre_target_timeline: Create a timeline with documents that are earlier than the target document.
+- all_timeline: Create a timeline with all documents.
+'''
+
 class Preprocessor:
-    def __init__(self, mode: Literal['base', 'timeline_aware']) -> None:
+    def __init__(self, mode: Literal['base', 'pre_target_timeline', 'all_timeline']) -> None:
         self.mode = mode
 
         # self.sep_token = '</s>'
@@ -44,7 +51,7 @@ class Preprocessor:
                         'tgt': int(doc['is_fake']) #fake -> 1, real -> 0
                     })
 
-        elif self.mode == 'timeline_aware':
+        elif self.mode == 'pre_target_timeline' or self.mode == 'all_timeline':
             for timeline in raw_dataset['data']:
                 for i in range(len(timeline['timeline'])):
                     # Determine if the i-th document of the timeline is fake or real.
@@ -53,6 +60,9 @@ class Preprocessor:
                     for j, doc in enumerate(timeline['timeline']):
                         if i == j:
                             src += f"{self.target_token} {self._template_of_src(doc, content=True)} {self.target_token} "
+                            # If the mode is 'pre_target_timeline', we don't need to add the following documents.
+                            if self.mode == 'pre_target_timeline':
+                                break
                         elif i == j+1 or j == len(timeline['timeline'])-1:
                             src += f"{self._template_of_src(doc)} "
                         else:
@@ -61,6 +71,7 @@ class Preprocessor:
                         'src': src,
                         'tgt': tgt
                     })
+
         else:
             raise ValueError(f"Invalid mode: {self.mode}")
 
