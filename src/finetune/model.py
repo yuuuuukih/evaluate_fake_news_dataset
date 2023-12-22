@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers import AutoConfig
 
 class BertBinaryClassifier(pl.LightningModule):
-    def __init__(self, model_name="bert-base-uncased", lr=1e-3, dropout_rate=0.1, add_target_token=True, save_transformer_model_path=None):
+    def __init__(self, model_name="bert-base-uncased", lr=2e-5, dropout_rate=0.1, add_target_token=True, save_transformer_model_path=None):
         super().__init__()
         # learning rate
         self.lr = lr
