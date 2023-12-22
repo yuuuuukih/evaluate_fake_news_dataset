@@ -2,8 +2,8 @@ from typing import Any, Dict
 import torch
 from torch import nn
 import pytorch_lightning as pl
-from transformers import BertTokenizer, BertForSequenceClassification
-from transformers import BertConfig
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoConfig
 
 class BertBinaryClassifier(pl.LightningModule):
     def __init__(self, model_name="bert-base-uncased", lr=1e-3, dropout_rate=0.1, add_target_token=True, save_transformer_model_path=None):
@@ -11,16 +11,16 @@ class BertBinaryClassifier(pl.LightningModule):
         # learning rate
         self.lr = lr
         # Load pre-trained BERT model for sequence classification
-        config = BertConfig.from_pretrained(
+        config = AutoConfig.from_pretrained(
             model_name,
             num_labels=1,
             num_hidden_layers=12,
             hidden_dropout_prob=dropout_rate,
             attention_probs_dropout_prob=dropout_rate,
             )
-        self.model = BertForSequenceClassification.from_pretrained(model_name, config=config)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=config)
         # instantiate tokenizer
-        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # add special tokens
         if add_target_token:
             self.tokenizer.add_tokens(['<target>'])
