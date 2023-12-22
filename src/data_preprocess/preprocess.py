@@ -7,6 +7,7 @@ from typing import Literal
 
 from type.fake_news_dataset import FakeNewsDataset, DocForDataset
 from type.processed_dataset import ProcessedDataset
+from special_token import TARGET_TOKEN
 
 '''
 mode
@@ -21,7 +22,7 @@ class Preprocessor:
 
         # self.sep_token = '</s>'
         self.sep_token = '[SEP]'
-        self.target_token = '<target>'
+        self.target_token = TARGET_TOKEN
 
     def _load_raw_dataset(self, path: str):
         with open(path, 'r') as f:

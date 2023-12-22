@@ -5,6 +5,8 @@ import pytorch_lightning as pl
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers import AutoConfig
 
+from special_token import TARGET_TOKEN
+
 class BinaryClassifierByCLS(pl.LightningModule):
     def __init__(self, model_name="bert-base-uncased", lr=2e-5, dropout_rate=0.1, add_target_token=True, save_transformer_model_path=None):
         super().__init__()
@@ -23,7 +25,7 @@ class BinaryClassifierByCLS(pl.LightningModule):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # add special tokens
         if add_target_token:
-            self.tokenizer.add_tokens(['<target>'])
+            self.tokenizer.add_tokens([TARGET_TOKEN])
             self.model.resize_token_embeddings(len(self.tokenizer))
 
         # classifier
