@@ -27,8 +27,8 @@ class BertBinaryClassifier(pl.LightningModule):
             self.model.resize_token_embeddings(len(self.tokenizer))
 
         # classifier
-        self.model.classifier = nn.Linear(self.model.config.hidden_size, self.model.config.num_labels)
-        self.model.classifier.apply(self.model._init_weights)
+        # self.model.classifier = nn.Linear(self.model.config.hidden_size, self.model.config.num_labels)
+        # self.model.classifier.apply(self.model._init_weights)
         # sigmoid
         self.sigmoid = nn.Sigmoid()
 
