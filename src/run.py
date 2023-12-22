@@ -13,13 +13,13 @@ def main():
     parser.add_argument("--root_dir", default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
     parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
     parser.add_argument("--model_name", default='bert-base-uncased')
-    parser.add_argument("--file_name", default='best')
+    parser.add_argument("--file_name", default='best_cls')
 
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--num_workers", default=0, type=int)
     parser.add_argument('--max_seq_len', default=512, type=int)
     parser.add_argument("--max_epochs", default=30, type=int)
-    parser.add_argument("--lr", default=1e-3, type=float, help='learning rate')
+    parser.add_argument("--lr", default=2e-5, type=float, help='learning rate')
     parser.add_argument("--dropout_rate", default=0.1)
 
     parser.add_argument("--patience", default=2, type=int)
