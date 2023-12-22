@@ -1,13 +1,13 @@
 import os
 import torch
-from finetune.model import BertBinaryClassifier
+from finetune.model_pred_by_cls import BinaryClassifierByCLS
 from datasets import load_dataset
 from tqdm import tqdm
 from argparse import ArgumentParser
 
 class DatasetEvaluation:
     def __init__(self, model_name, checkpoint_path, mode) -> None:
-        self.finetuned_model = BertBinaryClassifier.load_from_checkpoint(checkpoint_path, model_name=model_name, add_target_token=False if mode == 'base' else True)
+        self.finetuned_model = BinaryClassifierByCLS.load_from_checkpoint(checkpoint_path, model_name=model_name, add_target_token=False if mode == 'base' else True)
         self.model = self.finetuned_model.model
         self.tokenizer = self.finetuned_model.tokenizer
 

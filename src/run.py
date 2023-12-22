@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from finetune.model import BertBinaryClassifier
+from finetune.model_pred_by_cls import BinaryClassifierByCLS
 from finetune.data import FakeNewsDataModule
 
 def main():
@@ -30,7 +30,7 @@ def main():
     data_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
     exp_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
 
-    model = BertBinaryClassifier(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, add_target_token=False if args.mode == 'base' else True, save_transformer_model_path=None)
+    model = BinaryClassifierByCLS(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, add_target_token=False if args.mode == 'base' else True, save_transformer_model_path=None)
     data_module = FakeNewsDataModule(
         data_dir=data_dir,
         tokenizer=model.tokenizer,
