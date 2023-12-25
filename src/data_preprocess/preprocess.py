@@ -17,8 +17,9 @@ mode
 '''
 
 class Preprocessor:
-    def __init__(self, mode: Literal['base', 'pre_target_timeline', 'all_timeline']) -> None:
+    def __init__(self, mode: Literal['base', 'pre_target_timeline', 'all_timeline'], only_short_description: bool = False) -> None:
         self.mode = mode
+        self.only_short_description = only_short_description
 
         # self.sep_token = '</s>'
         self.sep_token = '[SEP]'
@@ -60,7 +61,7 @@ class Preprocessor:
                     tgt = int(timeline['timeline'][i]['is_fake']) #fake -> 1, real -> 0
                     for j, doc in enumerate(timeline['timeline']):
                         if i == j:
-                            src += f"{self.target_token} {self._template_of_src(doc, content=True)} {self.target_token} "
+                            src += f"{self.target_token} {self._template_of_src(doc, content=not self.only_short_description)} {self.target_token} "
                             # If the mode is 'pre_target_timeline', we don't need to add the following documents.
                             if self.mode == 'pre_target_timeline':
                                 break
