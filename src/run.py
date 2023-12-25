@@ -5,10 +5,14 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from finetune.model_pred_by_cls import BinaryClassifierByCLS
+from finetune.model_pred_by_target import BinaryClassifierByTARGET
 from finetune.data import FakeNewsDataModule
 
 def main():
     parser = ArgumentParser()
+    parser.add_argument('--pred_by', default='target', choices=['cls', 'target'])
+    parser.add_argument('--concat_or_mean', default='concat', choices=['concat', 'mean'])
+
     parser.add_argument('--mode', default='base', choices=['base', 'pre_target_timeline', 'all_timeline'])
     parser.add_argument("--root_dir", default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
     parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
@@ -30,7 +34,10 @@ def main():
     data_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
     exp_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
 
-    model = BinaryClassifierByCLS(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, add_target_token=False if args.mode == 'base' else True, save_transformer_model_path=None)
+    if args.pred_by == 'target':
+        model = BinaryClassifierByTARGET(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, batch_size=args.batch_size, concat_or_mean=args.concat_or_mean, save_transformer_model_path=None)
+    elif args.pred_by == 'cls':
+        model = BinaryClassifierByCLS(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, add_target_token=False if args.mode == 'base' else True, save_transformer_model_path=None)
     data_module = FakeNewsDataModule(
         data_dir=data_dir,
         tokenizer=model.tokenizer,
