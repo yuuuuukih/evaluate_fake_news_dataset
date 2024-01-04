@@ -54,7 +54,7 @@ class Preprocessor:
 
     def _template_of_src(self, doc: DocForDataset, content: bool = False) -> str:
         if content:
-            return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} content: {doc['content']}"
+            return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} content: {doc['summarized_content']}"
         else:
             return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} short_description: {doc['short_description']}"
 
