@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from transformers import AutoTokenizer, AutoModel
 from transformers import AutoConfig
 
-from special_token import TARGET_TOKEN
+from const.special_token import TARGET_TOKEN
 
 class BinaryClassifierByTARGET(pl.LightningModule):
     def __init__(self, model_name="bert-base-uncased", lr=2e-5, dropout_rate=0.1, batch_size=32, concat_or_mean: Literal['concat', 'mean'] ='concat', save_transformer_model_path=None):

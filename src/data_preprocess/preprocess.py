@@ -7,7 +7,7 @@ from typing import Literal
 
 from type.fake_news_dataset import FakeNewsDataset, DocForDataset
 from type.processed_dataset import ProcessedDataset
-from special_token import TARGET_TOKEN
+from const.special_token import TARGET_TOKEN
 
 from data_preprocess.gpt_for_summary import get_summarized_content
 
