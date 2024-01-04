@@ -40,11 +40,13 @@ class Preprocessor:
         for i, timeline in enumerate(raw_dataset['data']):
             print(f"{i+1}/{len(raw_dataset['data'])}. Timeline")
             for j, doc in enumerate(timeline['timeline']):
+                if doc['is_fake']:
+                    continue
                 print(f"{j+1}/{len(timeline['timeline'])}. Document")
                 for _ in range(30):
                     summarized_content = get_summarized_content(doc['content'])
                     if 150 < len(summarized_content.split()) < 250:
-                        doc['summarized_content'] = summarized_content
+                        doc['content'] = summarized_content
                         break
                     else:
                         print(f"Summarized content is too short or too long. Retrying...")
@@ -54,7 +56,7 @@ class Preprocessor:
 
     def _template_of_src(self, doc: DocForDataset, content: bool = False) -> str:
         if content:
-            return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} content: {doc['summarized_content']}"
+            return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} content: {doc['content']}"
         else:
             return f"date: {doc['date']} {self.sep_token} headline: {doc['headline']} {self.sep_token} short_description: {doc['short_description']}"
 
