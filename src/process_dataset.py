@@ -14,16 +14,22 @@ def main():
         dataset_path = os.path.join(args.root_dir, args.sub_dir, f'{what}.json')
 
         if not args.only_sd:
-            out_dir = os.path.join(args.root_dir, args.sub_dir, f'{args.mode}')
+            out_dir_base = os.path.join(args.root_dir, args.sub_dir, 'base')
+            out_dir_pre_target_timeline = os.path.join(args.root_dir, args.sub_dir, 'pre_target_timeline')
+            out_dir_all_timeline = os.path.join(args.root_dir, args.sub_dir, 'all_timeline')
         else:
-            out_dir = os.path.join(args.root_dir, args.sub_dir, 'only_short_description', f'{args.mode}')
-        os.makedirs(out_dir, exist_ok=True)
+            out_dir_base = os.path.join(args.root_dir, args.sub_dir, 'only_short_description', 'base')
+            out_dir_pre_target_timeline = os.path.join(args.root_dir, args.sub_dir, 'only_short_description', 'pre_target_timeline')
+            out_dir_all_timeline = os.path.join(args.root_dir, args.sub_dir, 'only_short_description', 'all_timeline')
+        os.makedirs(out_dir_base, exist_ok=True)
+        os.makedirs(out_dir_pre_target_timeline, exist_ok=True)
+        os.makedirs(out_dir_all_timeline, exist_ok=True)
 
         pp = Preprocessor(only_short_description=args.only_sd)
         pp.load_summarized_dataset(dataset_path)
-        pp.process('base', out_dir, what)
-        pp.process('pre_target_timeline', out_dir, what)
-        pp.process('all_timeline', out_dir, what)
+        pp.process('base', out_dir_base, what)
+        pp.process('pre_target_timeline', out_dir_pre_target_timeline, what)
+        pp.process('all_timeline', out_dir_all_timeline, what)
 
 if __name__ == '__main__':
     main()
