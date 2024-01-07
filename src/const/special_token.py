@@ -1,1 +1,1 @@
-TARGET_TOKEN = '<target>'
+TARGET_TOKEN = '[TARGET]'
