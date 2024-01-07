@@ -20,7 +20,8 @@ mode
 '''
 
 class Preprocessor:
-    def __init__(self, only_short_description: bool = False) -> None:
+    def __init__(self, setting: Literal['rep0', 'rep1','rep2','rep3', 'ins0', 'ins1', 'ins2'], only_short_description: bool = False) -> None:
+        self.setting_str = setting.rstrip('0123456789') # rep or ins
         self.only_short_description = only_short_description
 
         # self.sep_token = '</s>'
@@ -39,6 +40,16 @@ class Preprocessor:
     def get_timelines_with_summarized_content(self, raw_dataset: FakeNewsDataset):
         print('=== Start summarizing content ===')
         for timeline in tqdm(raw_dataset['data']):
+            if self.setting_str == 'rep':
+                replaced_doc = timeline['replaced_doc']
+                for _ in range(50):
+                    summarized_content = get_summarized_content(replaced_doc['content'])
+                    if 150 < len(summarized_content.split()) < 250:
+                        replaced_doc['content'] = summarized_content
+                        break
+                    else:
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Retrying...")
+
             for doc in timeline['timeline']:
                 if doc['is_fake']:
                     continue
@@ -49,6 +60,10 @@ class Preprocessor:
                         break
                     else:
                         print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Retrying...")
+
+            # """ TEST """
+            # break
+            # """ TEST """
 
         timelines_with_summarized_content = raw_dataset['data']
         return timelines_with_summarized_content
@@ -80,10 +95,15 @@ class Preprocessor:
                 for i in range(2, len(timeline['timeline'])-1):
                     # Determine if the i-th document of the timeline is fake or real.
                     tgt = int(timeline['timeline'][i]['is_fake']) #fake -> 1, real -> 0
-                    doc_m2 = self._template_of_src(timeline['timeline'][i-2]) # target-2
-                    doc_m1 = self._template_of_src(timeline['timeline'][i-1]) # target-1
-                    doc_t = self._template_of_src(timeline['timeline'][i], content=not self.only_short_description) # target
-                    doc_p1 = self._template_of_src(timeline['timeline'][i+1]) # target+1
+
+                    if self.setting_str == 'rep':
+                        replaced_doc = timeline['replaced_doc']
+                        doc_m2 = self._template_of_src(timeline['timeline'][i-2] if not timeline['timeline'][i-2]['is_fake'] else replaced_doc) # target-2
+                        doc_m1 = self._template_of_src(timeline['timeline'][i-1] if not timeline['timeline'][i-1]['is_fake'] else replaced_doc) # target-1
+                        doc_t = self._template_of_src(timeline['timeline'][i], content=not self.only_short_description) # target
+                        doc_p1 = self._template_of_src(timeline['timeline'][i+1] if not timeline['timeline'][i+1]['is_fake'] else replaced_doc) # target+1
+                    elif self.setting_str == 'ins':
+                        pass
                     src = f"{doc_m2} {self.sep_token} {self.sep_token} {doc_m1} {self.target_token} {doc_t} {self.target_token}"
                     if mode == 'all_timeline':
                         src += f" {doc_p1}"
