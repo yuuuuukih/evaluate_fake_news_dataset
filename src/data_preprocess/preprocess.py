@@ -4,6 +4,7 @@ Process the raw fake news dataset to fine-tuneable json format.
 import os
 import json
 from typing import Literal
+from tqdm import tqdm
 
 from type.fake_news_dataset import FakeNewsDataset, DocForDataset
 from type.processed_dataset import ProcessedDataset
@@ -37,19 +38,17 @@ class Preprocessor:
 
     def get_timelines_with_summarized_content(self, raw_dataset: FakeNewsDataset):
         print('=== Start summarizing content ===')
-        for i, timeline in enumerate(raw_dataset['data']):
-            print(f"{i+1}/{len(raw_dataset['data'])}. Timeline")
-            for j, doc in enumerate(timeline['timeline']):
+        for timeline in tqdm(raw_dataset['data']):
+            for doc in timeline['timeline']:
                 if doc['is_fake']:
                     continue
-                print(f"{j+1}/{len(timeline['timeline'])}. Document")
-                for _ in range(30):
+                for _ in range(50):
                     summarized_content = get_summarized_content(doc['content'])
                     if 150 < len(summarized_content.split()) < 250:
                         doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content is too short or too long. Retrying...")
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Retrying...")
 
         timelines_with_summarized_content = raw_dataset['data']
         return timelines_with_summarized_content
@@ -80,18 +79,15 @@ class Preprocessor:
             for timeline in self.timelines_with_summarized_content:
                 for i in range(2, len(timeline['timeline'])-1):
                     # Determine if the i-th document of the timeline is fake or real.
-                    src = ''
                     tgt = int(timeline['timeline'][i]['is_fake']) #fake -> 1, real -> 0
-                    for j, doc in enumerate(timeline['timeline']):
-                        if i == j:
-                            src += f"{self.target_token} {self._template_of_src(doc, content=not self.only_short_description)} {self.target_token} "
-                            # If the mode is 'pre_target_timeline', we don't need to add the following documents.
-                            if mode == 'pre_target_timeline':
-                                break
-                        elif i == j+1 or j == len(timeline['timeline'])-1:
-                            src += f"{self._template_of_src(doc)} "
-                        else:
-                            src += f"{self._template_of_src(doc)} {self.sep_token} {self.sep_token} "
+                    doc_m2 = self._template_of_src(timeline['timeline'][i-2]) # target-2
+                    doc_m1 = self._template_of_src(timeline['timeline'][i-1]) # target-1
+                    doc_t = self._template_of_src(timeline['timeline'][i], content=not self.only_short_description) # target
+                    doc_p1 = self._template_of_src(timeline['timeline'][i+1]) # target+1
+                    src = f"{doc_m2} {self.sep_token} {self.sep_token} {doc_m1} {self.target_token} {doc_t} {self.target_token}"
+                    if mode == 'all_timeline':
+                        src += f" {doc_p1}"
+
                     new_dataset['data'].append({
                         'src': src,
                         'tgt': tgt
