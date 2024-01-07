@@ -52,10 +52,10 @@ def retry_decorator(max_error_count=10, retry_delay=1): # Loop with a maximum of
     return decorator_retry
 
 @retry_decorator(max_error_count=10, retry_delay=1)
-def get_summarized_content(input_content: str, model_name: str = 'gpt-4-1106-preview', temperature: float = 0) -> str:
+def get_summarized_content(input_content: str, words: int = 200, model_name: str = 'gpt-4-1106-preview', temperature: float = 0) -> str:
     # Create prompt.
     system_prompt = ''
-    user_prompt = 'Summarize the following news article in about 200 words without compromising the content.\n'
+    user_prompt = f'Summarize the following news article in about {words} words without compromising the content.\n'
     user_prompt += input_content
     messages = [
         {"role": "system", "content": system_prompt},

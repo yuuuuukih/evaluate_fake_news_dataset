@@ -42,24 +42,28 @@ class Preprocessor:
         for timeline in tqdm(raw_dataset['data']):
             if self.setting_str == 'rep':
                 replaced_doc = timeline['replaced_doc']
+                words = 200
                 for _ in range(50):
-                    summarized_content = get_summarized_content(replaced_doc['content'])
-                    if 150 < len(summarized_content.split()) < 250:
+                    summarized_content = get_summarized_content(replaced_doc['content'], words=words)
+                    if 150 <= len(summarized_content.split()) <= 250:
                         replaced_doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Retrying...")
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying...")
+                        words = 150 if len(summarized_content.split()) > 250 else 200
 
             for doc in timeline['timeline']:
                 if doc['is_fake']:
                     continue
+                words = 200
                 for _ in range(50):
-                    summarized_content = get_summarized_content(doc['content'])
-                    if 150 < len(summarized_content.split()) < 250:
+                    summarized_content = get_summarized_content(doc['content'], words=words)
+                    if 150 <= len(summarized_content.split()) <= 250:
                         doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Retrying...")
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying...")
+                        words = 150 if len(summarized_content.split()) > 250 else 200
 
             # """ TEST """
             # break
