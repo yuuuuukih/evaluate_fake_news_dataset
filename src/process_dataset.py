@@ -1,9 +1,11 @@
 import os
 import re
 from data_preprocess.preprocess import Preprocessor
+from utils.measure_exe_time import measure_exe_time
 
 from argparse import ArgumentParser
 
+@measure_exe_time
 def main():
     parser = ArgumentParser()
     parser.add_argument('--root_dir', default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
