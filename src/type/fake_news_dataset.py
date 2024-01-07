@@ -1,7 +1,7 @@
 '''
 This type is from https://github.com/YuukiHaraProgramming/news_timeline/blob/main/src/create_dataset/type/fake_news_dataset.py
 '''
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, Union
 
 class Analytics(TypedDict):
     docs_num_in_1timeline: dict[str, int]
@@ -44,6 +44,7 @@ class DocForDataset(TypedDict):
 class TimelineDataInfo(TypedDict):
     entity_id: int
     entity_items: list[str]
+    replaced_doc: Union[DocForDataset, None]
     timeline: list[DocForDataset]
 
 class NoFakeTimelinesInfo(TypedDict):
