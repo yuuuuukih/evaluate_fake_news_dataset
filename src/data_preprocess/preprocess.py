@@ -49,7 +49,7 @@ class Preprocessor:
                         replaced_doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying...")
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
                         words = 150 if len(summarized_content.split()) > 250 else 200
 
             for doc in timeline['timeline']:
@@ -62,7 +62,7 @@ class Preprocessor:
                         doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying...")
+                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying (doc id: ({doc['ID']}))...")
                         words = 150 if len(summarized_content.split()) > 250 else 200
 
             # """ TEST """
