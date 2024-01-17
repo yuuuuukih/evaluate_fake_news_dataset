@@ -30,7 +30,7 @@ class Preprocessor:
 
     def load_summarized_dataset(self, dataset_path: str) -> None:
         self.raw_dataset: FakeNewsDataset = self._load_raw_dataset(dataset_path)
-        self.timelines_with_summarized_content = self.get_timelines_with_summarized_content(self.raw_dataset)
+        self.timelines_with_summarized_content = self.get_timelines_with_summarized_content(self.raw_dataset) if not self.only_short_description else self.raw_dataset['data']
 
     def _load_raw_dataset(self, path: str):
         with open(path, 'r') as f:
