@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--root_dir", default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
     parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
     parser.add_argument("--model_name", default='bert-base-uncased')
-    parser.add_argument("--file_name", default='best_cls')
+    parser.add_argument("--file_name", default='default')
 
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--num_workers", default=0, type=int)
@@ -50,10 +50,12 @@ def main():
 
     # logger = TensorBoardLogger('tb_logs', name='my_model')
 
+    target_label_for_file_name: bool = args.pred_by == 'target'
+    file_name = f"best_{args.pred_by}" + target_label_for_file_name * f"_{args.concat_or_mean}" if args.file_name == 'default' else args.file_name
     checkpoint_callback = ModelCheckpoint(
         monitor='val_loss',
         dirpath=exp_dir,
-        filename=args.file_name,
+        filename=file_name,
         save_top_k=1,
         mode='min',
     )
