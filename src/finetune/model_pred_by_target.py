@@ -63,18 +63,9 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         return logits
 
     def training_step(self, batch, batch_idx):
-        try:
-            logits = self.forward(batch['input_ids'], batch['attention_mask'])
-            loss = self.criteria(logits, batch['labels'].float())
-            self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        except Exception as e:
-            print(e)
-            print(logits)
-            print(batch['input_ids'].size())
-            print(batch['attention_mask'].size())
-            print(batch['labels'])
-            exit()
-
+        logits = self.forward(batch['input_ids'], batch['attention_mask'])
+        loss = self.criteria(logits, batch['labels'].float())
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
