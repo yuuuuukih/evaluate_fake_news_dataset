@@ -9,7 +9,7 @@ def main():
 
     concat_data = []
     for what in ['train', 'val', 'test']:
-        with open(os.path.join(data_dir, f'{what}.json'), 'r') as F:
+        with open(os.path.join(data_dir, sub_dir, f'{what}.json'), 'r') as F:
             what_json = json.load(F)
         concat_data.extend(what_json['data'])
 
