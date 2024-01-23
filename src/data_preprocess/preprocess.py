@@ -49,8 +49,12 @@ class Preprocessor:
                         replaced_doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
-                        words = 150 if len(summarized_content.split()) > 250 else 200
+                        if len(summarized_content.split()) > 250:
+                            print(f"Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            words = 150
+                        elif len(summarized_content.split()) < 150:
+                            print(f"Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            words = 300
 
             for doc in timeline['timeline']:
                 if doc['is_fake']:
@@ -62,8 +66,12 @@ class Preprocessor:
                         doc['content'] = summarized_content
                         break
                     else:
-                        print(f"Summarized content ({len(summarized_content.split())}) is too short or too long. Instrucrion words is {words}. Retrying (doc id: ({doc['ID']}))...")
-                        words = 150 if len(summarized_content.split()) > 250 else 200
+                        if len(summarized_content.split()) > 250:
+                            print(f"Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            words = 150
+                        elif len(summarized_content.split()) < 150:
+                            print(f"Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            words = 300
 
             # """ TEST """
             # break

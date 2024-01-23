@@ -54,9 +54,20 @@ def retry_decorator(max_error_count=10, retry_delay=1): # Loop with a maximum of
 @retry_decorator(max_error_count=10, retry_delay=1)
 def get_summarized_content(input_content: str, words: int = 200, model_name: str = 'gpt-4-1106-preview', temperature: float = 0) -> str:
     # Create prompt.
+    prompt_file_path = os.path.join(os.path.dirname(__file__), 'few_shot_prompt.txt')
+    with open(prompt_file_path, 'r') as F:
+        few_shot_prompt = F.read()
+
     system_prompt = ''
-    user_prompt = f'Summarize the following news article in about {words} words without compromising the content.\n'
-    user_prompt += input_content
+    user_prompt = f'Summarize the following news article in about {words} words.\n'
+    user_prompt += f"{few_shot_prompt}\n"
+    user_prompt += (
+        "\n"
+        "Input:\n"
+        f"{input_content}\n"
+        "\n"
+        "Output:\n"
+    )
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
