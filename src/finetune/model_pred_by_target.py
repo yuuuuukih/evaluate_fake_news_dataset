@@ -33,7 +33,7 @@ class BinaryClassifierByTARGET(pl.LightningModule):
 
         # classifier (concatenate 2 [TARGET] token)
         hidden_size_scale_factor = 2 if self.concat_or_mean == 'concat' else 1
-        self.classifier = nn.Linear(self.model.config.hidden_size * hidden_size_scale_factor, batch_size)
+        self.classifier = nn.Linear(self.model.config.hidden_size * hidden_size_scale_factor, 1)
 
         # sigmoid https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html
         self.criteria = nn.BCEWithLogitsLoss()
@@ -47,20 +47,27 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         output = self.model(input_ids, attention_mask=attention_mask)
         last_hidden_state = output.last_hidden_state
         # Find the position of <target> token.
-        target_token_indicies = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
-        if len(target_token_indicies) == 2:
-            target_token_states = last_hidden_state[target_token_indicies[0], target_token_indicies[1]]
-        else:
-            raise Exception('target_token_indicies is not 2.')
+        # target_token_indicies = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
+        target_token_indicies = torch.tensor([]).cuda()
+        for i in range(len(input_ids)):
+            indices = (input_ids[i] == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero().squeeze()
+            target_token_indicies = torch.cat((target_token_indicies, indices.unsqueeze(0)), dim=0)
+        # convert tartget_token_indicies to int type
+        target_token_indicies = target_token_indicies.to(torch.int64)
 
-        # concat or mean
-        if self.concat_or_mean == 'concat':
-            combined_target_token_states = torch.cat([target_token_states[0], target_token_states[1]], dim=0)
-        elif self.concat_or_mean == 'mean':
-            combined_target_token_states = torch.mean(torch.stack([target_token_states[0], target_token_states[1]]), dim=0)
+        target_states = torch.tensor([]).cuda()
+        for i, tti in enumerate(target_token_indicies):
+            if len(tti) != 2:
+                raise Exception('target_token_indicies is not 2.')
+            if self.concat_or_mean == 'concat':
+                concat_last_state = torch.cat([last_hidden_state[i][tti[0]], last_hidden_state[i][tti[1]]], dim=0)
+                target_states = torch.cat([target_states, concat_last_state.unsqueeze(0)], dim=0)
+            elif self.concat_or_mean == 'mean':
+                mean_last_state = torch.mean(torch.stack([last_hidden_state[i][tti[0]], last_hidden_state[i][tti[1]]]), dim=0)
+                target_states = torch.cat([target_states, mean_last_state.unsqueeze(0)], dim=0)
 
-        logits = self.classifier(combined_target_token_states)
-        return logits
+        logits = self.classifier(target_states)
+        return logits.squeeze()
 
     def training_step(self, batch, batch_idx):
         logits = self.forward(batch['input_ids'], batch['attention_mask'])
