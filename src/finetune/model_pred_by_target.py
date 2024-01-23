@@ -12,6 +12,8 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         super().__init__()
         # learning rate
         self.lr = lr
+        # batch_size
+        self.batch_size = batch_size
         # Load pre-trained BERT model for sequence classification
         config = AutoConfig.from_pretrained(
             model_name,
@@ -49,7 +51,7 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         # Find the position of <target> token.
         # target_token_indicies = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
         target_token_indicies = torch.tensor([]).cuda()
-        for i in range(len(input_ids)):
+        for i in range(self.batch_size):
             indices = (input_ids[i] == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero().squeeze()
             target_token_indicies = torch.cat((target_token_indicies, indices.unsqueeze(0)), dim=0)
         # convert tartget_token_indicies to int type
