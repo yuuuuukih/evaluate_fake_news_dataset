@@ -88,10 +88,15 @@ def main():
     parser.add_argument("--root_dir", default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
     parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
     parser.add_argument("--model_name", default='bert-base-uncased')
-    parser.add_argument("--ckpt_file_name", default='best_cls')
+    parser.add_argument("--ckpt_file_name", default='default')
     args = parser.parse_args()
 
-    checkpoint_path = os.path.join(args.root_dir, args.sub_dir, args.mode, f'{args.ckpt_file_name}.ckpt')
+    # ckpt_file_name
+    if args.ckpt_file_name == 'default':
+        ckpt_file_name = f"best_target_{args.concat_or_mean}" if args.pred_by == 'target' else 'best_cls'
+    else:
+        ckpt_file_name = args.ckpt_file_name
+    checkpoint_path = os.path.join(args.root_dir, args.sub_dir, args.mode, f'{ckpt_file_name}.ckpt')
     test_data_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
     print(checkpoint_path)
 
