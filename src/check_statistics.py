@@ -35,7 +35,7 @@ def calculate_boxplot_data(data: list, whis: float = 1.5):
         'outliers': [x for x in data if x < lower_bound or x > upper_bound]
     }
 
-def plot_boxplot(data: list, label: list[str] = ['real (before)', 'real (after 0-shot)', 'real (after few-shot)', 'fake'], file_name: str = 'boxplot', whis: float = 1.5):
+def plot_boxplot(data: list, label: list[str] = ['real\n(before summarizing)', 'real\n(after sammarizing by few-shot)', 'fake'], file_name: str = 'boxplot', whis: float = 1.5):
     """箱ひげ図を描画する関数"""
     fig = plt.figure(figsize=(8, 6))
     # ax.set_title('The box plot of the data')
@@ -70,11 +70,13 @@ def main():
     before_sammarized_data_path = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7/timeline_diff7.json'
     data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/base/'
 
+    new_data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/'
     few_shot_sample_path = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/sampled_summarized.json'
 
     before_sammarized_real_doc_lens = []
     real_doc_lens = []
     fake_doc_lens = []
+    new_fake_doc_lens = []
 
     few_shot_real_doc_lens = []
 
@@ -95,16 +97,16 @@ def main():
                     manage_doc_ids_for_before_summarized.append(doc_id)
                     before_sammarized_real_doc_lens.append(doc_len)
 
-    manage_doc_ids_for_few_shot_summarized = []
-    for timeline_data in few_shot_sample:
-        few_shot_real_doc_lens.append(len(timeline_data['replaced_doc']['content'].split()))
-        for doc in timeline_data['timeline']:
-            doc_id: int = doc['ID']
-            doc_content: str = doc['content']
-            doc_len = len(doc_content.split())
-            if doc_id not in set(manage_doc_ids_for_few_shot_summarized):
-                manage_doc_ids_for_few_shot_summarized.append(doc_id)
-                few_shot_real_doc_lens.append(doc_len)
+    # manage_doc_ids_for_few_shot_summarized = []
+    # for timeline_data in few_shot_sample:
+    #     few_shot_real_doc_lens.append(len(timeline_data['replaced_doc']['content'].split()))
+    #     for doc in timeline_data['timeline']:
+    #         doc_id: int = doc['ID']
+    #         doc_content: str = doc['content']
+    #         doc_len = len(doc_content.split())
+    #         if doc_id not in set(manage_doc_ids_for_few_shot_summarized):
+    #             manage_doc_ids_for_few_shot_summarized.append(doc_id)
+    #             few_shot_real_doc_lens.append(doc_len)
 
     for what in ['train', 'val', 'test']:
         with open(os.path.join(data_dir, f'{what}.json'), 'r') as F:
@@ -117,11 +119,23 @@ def main():
             else:
                 real_doc_lens.append(content_len)
 
+    # for what in ['train', 'val', 'test']:
+    #     with open(os.path.join(new_data_dir, f'{what}.json'), 'r') as F:
+    #         what_json = json.load(F)
+
+    #     for entity_data in what_json['data']:
+    #         for doc in entity_data['timeline']:
+    #             if doc['is_fake'] == True:
+    #                 new_fake_doc_lens.append(len(doc['content'].split()))
+
     print(calculate_boxplot_data(before_sammarized_real_doc_lens))
     print(calculate_boxplot_data(real_doc_lens))
     print(calculate_boxplot_data(fake_doc_lens))
-    print(calculate_boxplot_data(few_shot_real_doc_lens))
-    plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, few_shot_real_doc_lens, fake_doc_lens])
+    # print(calculate_boxplot_data(new_fake_doc_lens))
+    # print(calculate_boxplot_data(few_shot_real_doc_lens))
+    plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, fake_doc_lens])
+    # plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, few_shot_real_doc_lens, fake_doc_lens])
+    # plot_boxplot([before_sammarized_real_doc_lens, [], few_shot_real_doc_lens, new_fake_doc_lens])
 
 if __name__ == '__main__':
     main()
