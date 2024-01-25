@@ -6,19 +6,19 @@ from transformers import default_data_collator
 from datasets import load_dataset
 
 class FakeNewsDataModule(pl.LightningDataModule):
-    def __init__(self, data_dir: str, tokenizer, batch_size: int = 32, num_workers: int = 0, max_length: int = 512, mode: str = 'base'):
+    def __init__(self, data_dir: str, tokenizer, batch_size: int = 32, num_workers: int = 0, max_length: int = 512, training_data_name: str = 'train'):
         super().__init__()
         self.data_dir = data_dir
         self.tokenizer = tokenizer
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.max_length = max_length
-        self.mode = mode
+        self.training_data_name = training_data_name
 
     def setup(self, stage=None):
         # load dataset
         dataset = load_dataset('json', data_files={
-            'train': os.path.join(self.data_dir, 'train.json'),
+            'train': os.path.join(self.data_dir, f'{self.training_data_name}.json'),
             'val': os.path.join(self.data_dir, 'val.json'),
             # 'test': os.path.join(self.data_dir, 'test.json')
         }, field='data')
