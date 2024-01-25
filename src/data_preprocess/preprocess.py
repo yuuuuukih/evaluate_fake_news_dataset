@@ -43,34 +43,34 @@ class Preprocessor:
             if self.setting_str == 'rep':
                 replaced_doc = timeline['replaced_doc']
                 words = 200
-                for _ in range(50):
+                for i in range(50):
                     summarized_content = get_summarized_content(replaced_doc['content'], words=words)
                     if 150 <= len(summarized_content.split()) <= 250:
                         replaced_doc['content'] = summarized_content
                         break
                     else:
                         if len(summarized_content.split()) > 250:
-                            print(f"Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            print(f"{i+1}. Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
                             words = 150
                         elif len(summarized_content.split()) < 150:
-                            print(f"Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            print(f"{i+1}. Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
                             words = 300
 
             for doc in timeline['timeline']:
                 if doc['is_fake']:
                     continue
                 words = 200
-                for _ in range(50):
+                for i in range(50):
                     summarized_content = get_summarized_content(doc['content'], words=words)
                     if 150 <= len(summarized_content.split()) <= 250:
                         doc['content'] = summarized_content
                         break
                     else:
                         if len(summarized_content.split()) > 250:
-                            print(f"Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            print(f"{i+1}. Summarized content ({len(summarized_content.split())}) is too long. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
                             words = 150
                         elif len(summarized_content.split()) < 150:
-                            print(f"Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
+                            print(f"{i+1}. Summarized content ({len(summarized_content.split())}) is too short. Instrucrion words is {words}. Retrying (doc id: {replaced_doc['ID']})...")
                             words = 300
 
             # """ TEST """
@@ -109,11 +109,18 @@ class Preprocessor:
                     tgt = int(timeline['timeline'][i]['is_fake']) #fake -> 1, real -> 0
 
                     if self.setting_str == 'rep':
-                        replaced_doc = timeline['replaced_doc']
-                        doc_m2 = self._template_of_src(timeline['timeline'][i-2] if not timeline['timeline'][i-2]['is_fake'] else replaced_doc) # target-2
-                        doc_m1 = self._template_of_src(timeline['timeline'][i-1] if not timeline['timeline'][i-1]['is_fake'] else replaced_doc) # target-1
+                        # replaced_doc = timeline['replaced_doc']
+                        if timeline['timeline'][i-2]['is_fake']:
+                            doc_m2 = self._template_of_src(timeline['timeline'][i-3]) # target-2
+                            doc_m1 = self._template_of_src(timeline['timeline'][i-1]) # target-1
+                        elif timeline['timeline'][i-1]['is_fake']:
+                            doc_m2 = self._template_of_src(timeline['timeline'][i-3]) # target-2
+                            doc_m1 = self._template_of_src(timeline['timeline'][i-2]) # target-1
+                        else:
+                            doc_m2 = self._template_of_src(timeline['timeline'][i-2]) # target-2
+                            doc_m1 = self._template_of_src(timeline['timeline'][i-1]) # target-1
                         doc_t = self._template_of_src(timeline['timeline'][i], content=not self.only_short_description) # target
-                        doc_p1 = self._template_of_src(timeline['timeline'][i+1] if not timeline['timeline'][i+1]['is_fake'] else replaced_doc) # target+1
+                        doc_p1 = self._template_of_src(timeline['timeline'][i+1] if not timeline['timeline'][i+1]['is_fake'] else timeline['timeline'][i+2]) # target+1
                     elif self.setting_str == 'ins':
                         pass
                     src = f"{doc_m2} {self.sep_token} {self.sep_token} {doc_m1} {self.target_token} {doc_t} {self.target_token}"
