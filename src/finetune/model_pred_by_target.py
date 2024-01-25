@@ -49,18 +49,24 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         output = self.model(input_ids, attention_mask=attention_mask)
         last_hidden_state = output.last_hidden_state
         # Find the position of <target> token.
-        # target_token_indicies = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
-        target_token_indicies = torch.tensor([]).cuda()
+        # target_token_indices = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
+        target_token_indices = torch.tensor([]).cuda()
         for i in range(self.batch_size):
             indices = (input_ids[i] == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero().squeeze()
-            target_token_indicies = torch.cat((target_token_indicies, indices.unsqueeze(0)), dim=0)
+            # If only one [TARGET] token is included, repeat the index (tensor(148) -> tensor([148, 148])).
+            if indices.nelement() == 1:
+                indices = indices.repeat(2)
+            elif indices.nelement() == 0:
+                raise Exception('target_token_indices is empty.')
+
+            target_token_indices = torch.cat((target_token_indices, indices.unsqueeze(0)), dim=0)
         # convert tartget_token_indicies to int type
-        target_token_indicies = target_token_indicies.to(torch.int64)
+        target_token_indices = target_token_indices.to(torch.int64)
 
         target_states = torch.tensor([]).cuda()
-        for i, tti in enumerate(target_token_indicies):
+        for i, tti in enumerate(target_token_indices):
             if len(tti) != 2:
-                raise Exception('target_token_indicies is not 2.')
+                raise Exception('target_token_indices is not 2.')
             if self.concat_or_mean == 'concat':
                 concat_last_state = torch.cat([last_hidden_state[i][tti[0]], last_hidden_state[i][tti[1]]], dim=0)
                 target_states = torch.cat([target_states, concat_last_state.unsqueeze(0)], dim=0)
