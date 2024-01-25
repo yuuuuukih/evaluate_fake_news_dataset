@@ -51,7 +51,7 @@ class BinaryClassifierByTARGET(pl.LightningModule):
         # Find the position of <target> token.
         # target_token_indices = (input_ids == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero(as_tuple=True)
         target_token_indices = torch.tensor([]).cuda()
-        for i in range(self.batch_size):
+        for i in range(len(input_ids)):
             indices = (input_ids[i] == self.tokenizer.convert_tokens_to_ids(TARGET_TOKEN)).nonzero().squeeze()
             # If only one [TARGET] token is included, repeat the index (tensor(148) -> tensor([148, 148])).
             if indices.nelement() == 1:
