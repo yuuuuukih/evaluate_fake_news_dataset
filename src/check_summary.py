@@ -19,7 +19,8 @@ def main():
     dataset_path = os.path.join(args.root_dir, args.sub_dir, sample_json_file_name)
     with open(dataset_path, 'r') as F:
         sample_json = json.load(F)
-    sample_json['data'] = sample_json['data'][21:22]
+
+    sample_json['data'] = sample_json['data'][14:22]
 
     pp = Preprocessor(setting=setting, only_short_description=False)
     summarized_sample_json = pp.get_timelines_with_summarized_content(sample_json)
