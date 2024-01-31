@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--model_name", default='bert-base-uncased')
     parser.add_argument("--file_name", default='default')
     parser.add_argument("--split_ratio", default='100', choices=['25', '50', '75', '100'])
+    parser.add_argument('--no_in', default=False, action='store_true')
 
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--num_workers", default=0, type=int)
@@ -32,8 +33,9 @@ def main():
     args = parser.parse_args()
 
     # Set directory path.
-    data_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
-    exp_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
+    mode_dir = f'{args.mode}_no_in' if args.no_in else args.mode
+    data_dir = os.path.join(args.root_dir, args.sub_dir, mode_dir)
+    exp_dir = os.path.join(args.root_dir, args.sub_dir, mode_dir)
 
     if args.pred_by == 'target':
         model = BinaryClassifierByTARGET(model_name=args.model_name, lr=args.lr, dropout_rate=args.dropout_rate, batch_size=args.batch_size, concat_or_mean=args.concat_or_mean, save_transformer_model_path=None)

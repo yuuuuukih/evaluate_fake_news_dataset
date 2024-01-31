@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
+from argparse import ArgumentParser
+
 def calculate_boxplot_data(data: list, whis: float = 1.5):
     """箱ひげ図に必要な統計値（平均値含む）を計算する関数"""
     min_val = np.min(data)  # 最小値
@@ -67,8 +69,15 @@ def get_content_text(src: str):
         print("The specified keyword cannot be found.")
 
 def main():
+    parser = ArgumentParser()
+    parser.add_argument('--no_in', default=False, action='store_true')
+    args = parser.parse_args()
+
     before_sammarized_data_path = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7/timeline_diff7.json'
-    data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/base/'
+    if args.no_in:
+        data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/base_no_in/'
+    else:
+        data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/base/'
 
     new_data_dir = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/'
     few_shot_sample_path = '/mnt/mint/hara/datasets/news_category_dataset/dataset/diff7_rep3/sampled_summarized.json'
