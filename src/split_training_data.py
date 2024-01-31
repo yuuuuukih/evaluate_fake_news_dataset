@@ -19,7 +19,14 @@ def main():
         base_dataset_path = os.path.join(args.root_dir, args.sub_dir, 'base', f'{what}_full.json')
         with open(base_dataset_path, 'r') as F:
             dataset: ProcessedDataset = json.load(F)
-        sampled_dataset = random.sample(dataset['data'], DATA_SIZE[what])
+        sampled_dataset = []
+        real_news_examples = []
+        for example in dataset['data']:
+            if example['tgt'] == 1:
+                sampled_dataset.append(example)
+            else:
+                real_news_examples.append(example)
+        sampled_dataset += random.sample(real_news_examples, DATA_SIZE[what] - len(sampled_dataset)) #len(sampled_dataset)=607
         dataset['data'] = sampled_dataset
         dataset['length'] = len(sampled_dataset)
         with open(os.path.join(args.root_dir, args.sub_dir, 'base', f'{what}.json'), 'w') as F:
