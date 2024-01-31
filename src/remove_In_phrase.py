@@ -78,30 +78,23 @@ def main():
         test_remove_initial_phrase_and_capitalize(separator="[SEP] content:")
         return
 
-    """
-    base (1 doc)
-    """
-    for what in ['train_25', 'train_50', 'train_75', 'train_100', 'val', 'test']:
-        file_path = os.path.join(args.root_dir, args.sub_dir, 'base', f'{what}.json')
-        with open(file_path, 'r') as F:
-            dataset = json.load(F)
 
-        for example in dataset['data']:
-            if example['tgt'] == 1:
-                example['src'] = remove_initial_phrase_and_capitalize(example['src'], separator="[SEP] content:")
+    for mode in ['base', 'pre_target_timeline', 'all_timeline']:
+        for what in ['train_25', 'train_50', 'train_75', 'train_100', 'val', 'test']:
+            file_path = os.path.join(args.root_dir, args.sub_dir, mode, f'{what}.json')
+            with open(file_path, 'r') as F:
+                dataset = json.load(F)
 
-        save_dir = os.path.join(args.root_dir, args.sub_dir, 'base_no_in')
-        save_file_path = os.path.join(save_dir, f'{what}.json')
-        os.makedirs(save_dir, exist_ok=True)
-        with open(save_file_path, 'w') as F:
-            json.dump(dataset, F, indent=4, ensure_ascii=False, separators=(',', ': '))
-        print(f"Saved to {save_file_path}")
+            for example in dataset['data']:
+                if example['tgt'] == 1:
+                    example['src'] = remove_initial_phrase_and_capitalize(example['src'], separator="[SEP] content:")
 
-
-    """
-    pre_target_timeline (3 docs), all_timeline (4 docs)
-    """
-
+            save_dir = os.path.join(args.root_dir, args.sub_dir, f'{mode}_no_in')
+            save_file_path = os.path.join(save_dir, f'{what}.json')
+            os.makedirs(save_dir, exist_ok=True)
+            with open(save_file_path, 'w') as F:
+                json.dump(dataset, F, indent=4, ensure_ascii=False, separators=(',', ': '))
+            print(f"Saved to {save_file_path}")
 
 
 if __name__ == '__main__':
