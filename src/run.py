@@ -70,7 +70,7 @@ def main():
         callbacks=[early_stop_callback, checkpoint_callback],
         max_epochs=args.max_epochs,
         deterministic=True,
-        # strategy="ddp_find_unused_parameters_false",
+        strategy="ddp_find_unused_parameters_true",
         accelerator="gpu",
         # devices=[0, 1, 2, 3],
         default_root_dir=exp_dir
