@@ -118,7 +118,8 @@ def main():
     #             few_shot_real_doc_lens.append(doc_len)
 
     for what in ['train', 'val', 'test']:
-        with open(os.path.join(data_dir, f'{what}.json'), 'r') as F:
+        file_name = f'{what}_100.json' if what == 'train' else f'{what}.json'
+        with open(os.path.join(data_dir, file_name), 'r') as F:
             what_json = json.load(F)
 
         for example in what_json['data']:
@@ -142,7 +143,8 @@ def main():
     print(calculate_boxplot_data(fake_doc_lens))
     # print(calculate_boxplot_data(new_fake_doc_lens))
     # print(calculate_boxplot_data(few_shot_real_doc_lens))
-    plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, fake_doc_lens])
+    label: list[str] = ['real\n(before summarizing)', 'real\n(after sammarizing by few-shot)', 'fake\n(Removed In~, phrase)'] if args.no_in else ['real\n(before summarizing)', 'real\n(after sammarizing by few-shot)', 'fake']
+    plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, fake_doc_lens], label=label)
     # plot_boxplot([before_sammarized_real_doc_lens, real_doc_lens, few_shot_real_doc_lens, fake_doc_lens])
     # plot_boxplot([before_sammarized_real_doc_lens, [], few_shot_real_doc_lens, new_fake_doc_lens])
 

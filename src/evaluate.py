@@ -90,6 +90,7 @@ def main():
     parser.add_argument("--model_name", default='bert-base-uncased')
     parser.add_argument("--ckpt_file_name", default='default')
     parser.add_argument("--split_ratio", default='100', choices=['25', '50', '75', '100'])
+    parser.add_argument('--no_in', default=False, action='store_true')
     args = parser.parse_args()
 
     # ckpt_file_name
@@ -97,8 +98,10 @@ def main():
         ckpt_file_name = f"best_target_{args.concat_or_mean}_{args.split_ratio}" if args.pred_by == 'target' else f'best_cls_{args.split_ratio}'
     else:
         ckpt_file_name = args.ckpt_file_name
-    checkpoint_path = os.path.join(args.root_dir, args.sub_dir, args.mode, f'{ckpt_file_name}.ckpt')
-    test_data_dir = os.path.join(args.root_dir, args.sub_dir, args.mode)
+
+    mode_dir = f'{args.mode}_no_in' if args.no_in else args.mode
+    checkpoint_path = os.path.join(args.root_dir, args.sub_dir, mode_dir, f'{ckpt_file_name}.ckpt')
+    test_data_dir = os.path.join(args.root_dir, args.sub_dir, mode_dir)
     print(checkpoint_path)
 
     de = DatasetEvaluation(args.model_name, checkpoint_path, args.mode, args.pred_by, args.concat_or_mean)
