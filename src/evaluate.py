@@ -11,6 +11,9 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from transformers import default_data_collator
 
+from captum.attr import visualization as viz
+from captum.attr import LayerIntegratedGradients
+
 class DatasetEvaluation:
     def __init__(
             self,
@@ -42,7 +45,7 @@ class DatasetEvaluation:
 
         tp, tn, fp, fn = 0, 0, 0, 0
 
-        with torch.no_grad():
+        with torch.set_grad_enabled(True):
             for example in tqdm(test_dataset):
                 src_texts: str = example['src']
                 tgt_texts: int = example['tgt']
@@ -51,6 +54,7 @@ class DatasetEvaluation:
 
                 input_ids = tokenized_src_texts['input_ids'].to(self.model.device)
                 attention_mask = tokenized_src_texts['attention_mask'].to(self.model.device)
+                token_type_ids = tokenized_src_texts['token_type_ids'].to(self.model.device)
                 if self.finetuned_model.__class__.__name__ == 'BinaryClassifierByCLS':
                     output = self.model(input_ids=input_ids, attention_mask=attention_mask)
                     proba = self.finetuned_model.sigmoid(output.logits).squeeze()
@@ -73,12 +77,95 @@ class DatasetEvaluation:
                     else:
                         tn += 1
 
+                # ig = IntegratedGradients(self.model)
+                # attributions_ig = ig.attribute(input_ids, target=tgt_texts, n_steps=500)
+                # # visualize
+                # vis_data_records_ig = [visualization.VisualizationDataRecord(
+                #     attributions_ig,
+                #     pred,
+                #     tgt_texts,
+                #     str(tgt_texts),
+                #     attributions_ig.sum(),
+                #     tokenized_src_texts['input_ids'],
+                #     1
+                # )]
+
+                # print('Visualize attributions based on Integrated Gradients')
+                # _ = visualization.visualize_text(vis_data_records_ig)
+                batch = {'input_ids': input_ids, 'attention_mask': attention_mask, 'labels': tgt_texts, 'token_type_ids': token_type_ids}
+                self.compute_lig(batch, target_label=torch.as_tensor([batch["labels"]]).to(self.model.device))
+
             acc = self._safe_divide(tp+tn, tp+tn+fp+fn)
             precision = self._safe_divide(tp, tp+fp)
             recall = self._safe_divide(tp, tp+fn)
             f1 = self._safe_divide(2*precision*recall, precision+recall)
             print(f"tp: {tp}, tn: {tn}, fp: {fp}, fn: {fn}")
             print(f"acc: {acc}, precision: {precision}, recall: {recall}, f1: {f1}")
+
+
+    def compute_lig(
+            self,
+            input_tensor: dict[str, torch.Tensor],
+            target_label: torch.Tensor,  # (b, seq)
+        ):
+
+        self.lig = LayerIntegratedGradients(self.finetuned_model.forward, self.finetuned_model.model.bert.embeddings)
+        self.lig_counter = 0
+        breakpoint()
+        attributions, delta = self.lig.attribute(inputs=input_tensor["input_ids"],  # (1, seq)
+                                                # baselines=torch.zeros_like(input_tensor),
+                                                # baselines=input_tensor["input_ids"][:1], # only for testing! replace here
+                                                target=target_label,  # (1)
+                                                additional_forward_args=(input_tensor["attention_mask"], input_tensor["token_type_ids"]),
+                                                return_convergence_delta=True)
+
+        # visualization = viz.visualize_text(
+        #     [attributions.squeeze().tolist()],
+        #     input_tensor,
+        #     [" ".join(self.tokenizer.convert_ids_to_tokens(input_tensor))],
+        #     show_colorbar=True,
+        # )
+        self.lig_counter += 1
+
+        pred: torch.Tensor = self.finetuned_model.forward(
+            input_tensor["input_ids"], input_tensor["attention_mask"], input_tensor["token_type_ids"]
+        )  # (1, 2)
+        # calculate argmax
+        score = torch.softmax(pred, dim=1)[0]  # (2)
+        attributions_sum = self._summarize_attributions(attributions)
+
+        true_label = target_label[0].item()
+        pred_label = torch.argmax(score, dim=0).item()
+        # storing couple samples in an array for visualization purposes
+        score_vis_record = viz.VisualizationDataRecord(
+                                                attributions_sum,
+                                                score[0], # pred probability
+                                                pred_label, # predicted label (Tensor)
+                                                true_label, # true label (int)
+                                                pred_label,
+                                                # target_label[0].item(), # attribute class?????
+                                                # self.tokenizer.convert_ids_to_tokens(input_tensor["input_ids"][0]),
+                                                attributions_sum.sum(),
+                                                self.tokenizer.convert_ids_to_tokens(input_tensor["input_ids"]),
+                                                delta)
+
+        output_path = "/mnt/mint/hara/datasets/news_category_dataset/captum"
+        os.makedirs(output_path, exist_ok=True)
+
+        # save the figure
+        vis_html = viz.visualize_text(
+            [score_vis_record]
+        )
+
+        # Save HTML content to a file
+        with open(output_path + "score_vis_"+ str(self.lig_counter)+f"_t{true_label}_p{pred_label}.html", "w") as file:
+            file.write(vis_html.data)
+
+    @staticmethod
+    def _summarize_attributions(attributions):
+        attributions = attributions.sum(dim=-1).squeeze(0)
+        attributions = attributions / torch.norm(attributions)
+        return attributions
 
 def main():
     parser = ArgumentParser()
