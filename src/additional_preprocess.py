@@ -50,5 +50,10 @@ def main():
                 json.dump(train_dataset, F, indent=4, ensure_ascii=False, separators=(',', ': '))
 
 
+    """
+    Create new pattern dataset (1 context - 1 target - 1 future)
+    """
+
+
 if __name__ == '__main__':
     main()
