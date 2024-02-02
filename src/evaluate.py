@@ -16,7 +16,7 @@ class DatasetEvaluation:
             self,
             model_name: str,
             checkpoint_path: str,
-            mode: Literal['base', 'pre_target_timeline', 'all_timeline'],
+            mode: Literal['base', 'pre_target_timeline', 'all_timeline', 'around_target'],
             pred_by: Literal['cls', 'target'],
             concat_or_mean: Literal['concat', 'mean']
             ) -> None:
@@ -84,7 +84,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--pred_by', default='target', choices=['cls', 'target'])
     parser.add_argument('--concat_or_mean', default='concat', choices=['concat', 'mean'])
-    parser.add_argument('--mode', default=None, choices=['base', 'pre_target_timeline', 'all_timeline'])
+    parser.add_argument('--mode', default=None, choices=['base', 'pre_target_timeline', 'all_timeline', 'around_target'])
     parser.add_argument("--root_dir", default='/mnt/mint/hara/datasets/news_category_dataset/dataset')
     parser.add_argument('--sub_dir', default='', help='e.g., diff7_rep1, diff7_rep3, diff7_ins1, diff6_rep1, diff6_rep3, diff6_ins1')
     parser.add_argument("--model_name", default='bert-base-uncased')
