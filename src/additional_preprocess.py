@@ -51,8 +51,10 @@ def main():
 
 
     """
-    Create new pattern dataset (1 context - 1 target - 1 future)
+    Create new pattern dataset (1 context - 1 target - 1 future) from all_timeline (2 context - 1 target - 1 future)
     """
+    new_pattern = "around_target"
+    dir_path = os.path.join(args.root_dir, args.sub_dir, new_pattern)
 
 
 if __name__ == '__main__':
