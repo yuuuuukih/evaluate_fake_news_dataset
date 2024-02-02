@@ -13,14 +13,13 @@ class BinaryClassifierByCLS(pl.LightningModule):
         # learning rate
         self.lr = lr
         # Load pre-trained BERT model for sequence classification
-        config = AutoConfig.from_pretrained(
+        self.model = AutoModelForSequenceClassification.from_pretrained(
             model_name,
-            num_labels=1,
-            num_hidden_layers=12,
-            hidden_dropout_prob=dropout_rate,
-            attention_probs_dropout_prob=dropout_rate,
+            config=AutoConfig.from_pretrained(
+                model_name,
+                num_labels=1,
             )
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=config)
+        )
         # instantiate tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # add special tokens
@@ -36,11 +35,16 @@ class BinaryClassifierByCLS(pl.LightningModule):
 
         self.model_dir_path = save_transformer_model_path
 
+    # def forward(self, input_ids, attention_mask, labels=None):
+    #     # Get the classifier's output
+    #     output = self.model(input_ids, attention_mask=attention_mask, labels=labels)
+    #     proba = self.sigmoid(output.logits).squeeze()
+    #     return proba
+    
     def forward(self, input_ids, attention_mask, labels=None):
         # Get the classifier's output
         output = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-        proba = self.sigmoid(output.logits).squeeze()
-        return proba
+        return output.logits
 
     def training_step(self, batch, batch_idx):
         # Forward pass
