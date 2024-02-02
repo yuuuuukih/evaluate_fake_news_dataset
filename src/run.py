@@ -1,4 +1,8 @@
 import os
+import random
+import numpy as np
+import torch
+
 from argparse import ArgumentParser
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
@@ -8,7 +12,19 @@ from finetune.model_pred_by_cls import BinaryClassifierByCLS
 from finetune.model_pred_by_target import BinaryClassifierByTARGET
 from finetune.data import FakeNewsDataModule
 
+def seed_everything(seed: int):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 def main():
+    seed_everything(42)
+
     parser = ArgumentParser()
     parser.add_argument('--pred_by', default='target', choices=['cls', 'target'])
     parser.add_argument('--concat_or_mean', default='concat', choices=['concat', 'mean'])
@@ -69,7 +85,7 @@ def main():
         # logger=logger,
         callbacks=[early_stop_callback, checkpoint_callback],
         max_epochs=args.max_epochs,
-        deterministic=True,
+        deterministic=True, # for making seed fixed
         strategy="ddp_find_unused_parameters_true",
         accelerator="gpu",
         # devices=[0, 1, 2, 3],
